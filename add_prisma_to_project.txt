@@ -1,0 +1,61 @@
+npm install prisma --save-dev
+
+npx prisma init
+
+
+add DATABASE_URL to .env
+
+
+make below changes to schema.prisma file in prisma folder for demo
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String    @id @default(cuid())
+  email    String    @unique
+  password String
+  posts    Post[]
+  Comment  Comment[]
+}
+
+model Post {
+  id       String    @id @default(cuid())
+  title    String
+  content  String
+  author   User      @relation(fields: [id], references: [id])
+  comments Comment[]
+}
+
+model Comment {
+  id      String @id @default(cuid())
+  content String
+  userId  String
+  postId  String
+  post    Post   @relation(fields: [postId], references: [id])
+  user    User   @relation(fields: [userId], references: [id])
+}
+
+run this command to generate sql file in migrations folder and make changes to database
+npx prisma migrate dev --name initial
+
+make changes to prisma file and run this command to update the database
+npx prisma migrate resolve --applied 0_init
+
+install module for PrismaClient
+npm install @prisma/client
+
+generate PrismaClient
+npx prisma generate
